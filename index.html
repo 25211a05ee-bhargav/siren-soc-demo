@@ -156,9 +156,26 @@
   }
   .btn-download:hover {
     background: #9dffe6;
+  @keyframes slideIn {
+    from { transform: translateX(120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes pulseBorder {
+    0% { border-color: #ff5e5e; box-shadow: 0 0 5px rgba(255, 94, 94, 0.4); }
+    100% { border-color: #ff0000; box-shadow: 0 0 20px rgba(255, 0, 0, 0.8); }
   }
 </style>
 </head><body>
+<div id="customAlert" style="display: none; position: fixed; top: 20px; right: 20px; z-index: 9999; width: 400px; padding: 18px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.85); font-family: Arial, sans-serif; transition: all 0.3s ease; animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+  <div style="display: flex; align-items: start; gap: 14px;">
+    <span id="alertIcon" style="font-size: 32px; line-height: 1;">🚨</span>
+    <div style="flex: 1;">
+      <h4 id="alertTitle" style="margin: 0 0 6px; font-size: 14px; font-weight: bold; color: white; letter-spacing: 0.5px; text-transform: uppercase;">ALERT DETECTED</h4>
+      <p id="alertBody" style="margin: 0; font-size: 12px; color: #b4c3df; line-height: 1.45; font-family: monospace; white-space: pre-wrap;"></p>
+    </div>
+    <button onclick="document.getElementById('customAlert').style.display='none'" style="background: none; border: 0; color: #8d9ab1; font-size: 24px; cursor: pointer; padding: 0 5px; line-height: 0.8; transition: color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#8d9ab1'">&times;</button>
+  </div>
+</div>
 <header><div><b>SIREN <span>SOC</span></b><small>Security Incident Response & Event Network — Simulation</small></div><label>● DEMO MODE</label></header>
 <main>
 <section class="hero">

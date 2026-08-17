@@ -551,49 +551,154 @@ function render() {
   `).join("");
 }
 
+// --- Atta// --- Custom Alert Toast Notification ---
+
+function triggerCustomAlert(title, message, type, icon) {
+  const alertBox = document.getElementById("customAlert");
+  const alertTitle = document.getElementById("alertTitle");
+  const alertBody = document.getElementById("alertBody");
+  const alertIcon = document.getElementById("alertIcon");
+  
+  alertTitle.textContent = title;
+  alertBody.textContent = message;
+  alertIcon.textContent = icon;
+  
+  // Reset animations
+  alertBox.style.animation = 'none';
+  alertBox.offsetHeight; // trigger reflow
+  alertBox.style.animation = null;
+  
+  // Set theme styles
+  if (type === "critical") {
+    alertBox.style.background = "#281212";
+    alertBox.style.border = "1px solid #ff5e5e";
+    alertBox.style.borderLeft = "6px solid #ff5e5e";
+    alertBox.style.animation = "slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), pulseBorder 1.5s infinite alternate";
+  } else if (type === "warning") {
+    alertBox.style.background = "#2a1b10";
+    alertBox.style.border = "1px solid #ffa05e";
+    alertBox.style.borderLeft = "6px solid #ffa05e";
+    alertBox.style.animation = "slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+  } else {
+    alertBox.style.background = "#111a2e";
+    alertBox.style.border = "1px solid #42c5f5";
+    alertBox.style.borderLeft = "6px solid #42c5f5";
+    alertBox.style.animation = "slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+  }
+  
+  alertBox.style.display = "block";
+  
+  if (window.alertTimeout) clearTimeout(window.alertTimeout);
+  window.alertTimeout = setTimeout(() => {
+    alertBox.style.display = "none";
+  }, 6000);
+}
+
+// --- Dynamic Relative Time Generator ---
+
+function getOffsetTime(offsetSeconds) {
+  const now = new Date();
+  now.setSeconds(now.getSeconds() + offsetSeconds);
+  const h = now.getHours().toString().padStart(2, '0');
+  const m = now.getMinutes().toString().padStart(2, '0');
+  const s = now.getSeconds().toString().padStart(2, '0');
+  return `${h}:${m}:${s}`;
+}
+
 // --- Attack Simulator ---
 
 function simulateAttack(scenario) {
   const newEvents = [];
   
   if (scenario === "ssh_std") {
-    const times = ["14:10:01", "14:10:05", "14:10:08", "14:10:12", "14:10:15"];
+    // Generate 5 failed logins within 15 seconds ending just now
+    const times = [getOffsetTime(-15), getOffsetTime(-12), getOffsetTime(-9), getOffsetTime(-6), getOffsetTime(-3)];
     times.forEach(t => {
       newEvents.push({ time: t, source: "sshd", event: "Failed password", user: "webuser", ip: "10.10.40.12", severity: "HIGH" });
     });
-    alert("Injected Scenario 1: Standard SSH Brute Force from 10.10.40.12 targeting 'webuser'.");
+    
+    events.push(...newEvents);
+    runDetectionEngine();
+    render();
+    
+    triggerCustomAlert(
+      "SSH Brute Force Detected", 
+      "Source IP: 10.10.40.12\nTarget Account: webuser\nFailed Attempts: 5 within 15s\nSeverity: HIGH (Score 9)", 
+      "warning", 
+      "🔑"
+    );
   } else if (scenario === "ssh_esc") {
-    const times = ["15:30:02", "15:30:04", "15:30:07", "15:30:09", "15:30:12"];
+    // Generate 5 failed logins + 1 success within 15 seconds ending just now
+    const times = [getOffsetTime(-15), getOffsetTime(-12), getOffsetTime(-9), getOffsetTime(-6), getOffsetTime(-3)];
     times.forEach(t => {
       newEvents.push({ time: t, source: "sshd", event: "Failed password", user: "testuser", ip: "10.10.30.22", severity: "HIGH" });
     });
-    newEvents.push({ time: "15:30:15", source: "sshd", event: "Accepted password", user: "testuser", ip: "10.10.30.22", severity: "INFO" });
-    alert("Injected Scenario 2: SSH Brute Force with Escalation (Compromise) from 10.10.30.22.");
+    newEvents.push({ time: getOffsetTime(0), source: "sshd", event: "Accepted password", user: "testuser", ip: "10.10.30.22", severity: "INFO" });
+    
+    events.push(...newEvents);
+    runDetectionEngine();
+    render();
+    
+    triggerCustomAlert(
+      "CRITICAL: Compromise Escalation", 
+      "SSH Brute Force worked! Success login detected from 10.10.30.22 after failures.\nSeverity: CRITICAL", 
+      "critical", 
+      "💀"
+    );
   } else if (scenario === "ssh_off") {
+    // Force off-hours by hardcoding to 3:40 AM
     const times = ["03:40:01", "03:40:03", "03:40:06", "03:40:08", "03:40:11"];
     times.forEach(t => {
       newEvents.push({ time: t, source: "sshd", event: "Failed password", user: "root", ip: "10.10.90.11", severity: "HIGH" });
     });
-    alert("Injected Scenario 3: Off-Hours SSH Brute Force from 10.10.90.11 targeting root at 03:40 AM.");
+    
+    events.push(...newEvents);
+    runDetectionEngine();
+    render();
+    
+    triggerCustomAlert(
+      "Off-Hours Root Brute Force", 
+      "Source IP: 10.10.90.11\nTarget Account: root\nTime: 03:40 AM (Off-hours)\nSeverity: CRITICAL (Score 20)", 
+      "critical", 
+      "🌙"
+    );
   } else if (scenario === "port_scan") {
+    // Generate port scan hitting 6 unique ports within 30 seconds ending just now
     const ports = [22, 23, 80, 443, 3389, 8080];
-    const times = ["16:50:01", "16:50:10", "16:50:18", "16:50:25", "16:50:32", "16:50:41"];
+    const times = [getOffsetTime(-25), getOffsetTime(-20), getOffsetTime(-15), getOffsetTime(-10), getOffsetTime(-5), getOffsetTime(0)];
     ports.forEach((p, idx) => {
       newEvents.push({ time: times[idx], source: "firewall", event: `Connection to port ${p}`, user: "-", ip: "10.10.50.88", dest_port: p, severity: "LOW" });
     });
-    alert("Injected Scenario 4: Firewall Port Scan from 10.10.50.88 targeting 6 different ports.");
+    
+    events.push(...newEvents);
+    runDetectionEngine();
+    render();
+    
+    triggerCustomAlert(
+      "Port Scan Detected", 
+      "Source IP: 10.10.50.88\n6 unique destination ports hit within 30s\nSeverity: MEDIUM (Score 9)", 
+      "warning", 
+      "🌐"
+    );
   } else if (scenario === "impossible_burst") {
+    // Generate 3 successful logins in 10 seconds ending just now
     const users = ["admin1", "admin2", "admin3"];
-    const times = ["18:05:01", "18:05:08", "18:05:15"];
+    const times = [getOffsetTime(-10), getOffsetTime(-5), getOffsetTime(0)];
     users.forEach((u, idx) => {
       newEvents.push({ time: times[idx], source: "sshd", event: "Accepted password", user: u, ip: "10.10.60.99", severity: "INFO" });
     });
-    alert("Injected Scenario 5: Impossible Login Burst from 10.10.60.99 targeting 3 admin users.");
+    
+    events.push(...newEvents);
+    runDetectionEngine();
+    render();
+    
+    triggerCustomAlert(
+      "CRITICAL: Impossible Login Burst", 
+      "Source IP: 10.10.60.99\n3 successful administrative logins in 10 seconds!\nSeverity: CRITICAL", 
+      "critical", 
+      "⚡"
+    );
   }
-  
-  events.push(...newEvents);
-  runDetectionEngine();
-  render();
 }
 
 // --- Initialize Page ---
