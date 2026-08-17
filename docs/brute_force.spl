@@ -1,0 +1,17 @@
+index=linux_logs sourcetype=linux_secure "Failed password"
+| rex field=_raw "Failed password for (invalid user )?(?<user>\S+) from (?<src_ip>\S+)"
+| bucket _time span=2m
+| stats count as failed_attempts, min(_time) as first_attempt, max(_time) as last_attempt by src_ip, user, _time
+| where failed_attempts >= 5
+| eval likelihood=case(
+failed_attempts<=2, 1, failed_attempts<=4, 2,
+failed_attempts<=9, 3, failed_attempts<=20, 4,
+failed_attempts>20, 5)
+| eval impact=if(user="root" OR user="admin", 5, 3)
+| eval risk_score=likelihood*impact
+| eval severity=case(
+risk_score<=6, "Low", risk_score<=12, "Medium",
+risk_score<=19, "High", risk_score>=20, "Critical")
+| eval mitre_technique="T1110 - Brute Force"
+| table first_attempt, last_attempt, src_ip, user, failed_attempts, likelihood, impact, risk_score, severity, mitre_technique
+| sort -risk_score

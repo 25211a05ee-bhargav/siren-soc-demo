@@ -1,0 +1,184 @@
+[
+  {
+    "time": "02:15:01",
+    "source": "sshd",
+    "event": "Failed password",
+    "user": "root",
+    "ip": "10.10.20.60",
+    "severity": "HIGH"
+  },
+  {
+    "time": "02:15:03",
+    "source": "sshd",
+    "event": "Failed password",
+    "user": "root",
+    "ip": "10.10.20.60",
+    "severity": "HIGH"
+  },
+  {
+    "time": "02:15:05",
+    "source": "sshd",
+    "event": "Failed password",
+    "user": "root",
+    "ip": "10.10.20.60",
+    "severity": "HIGH"
+  },
+  {
+    "time": "02:15:07",
+    "source": "sshd",
+    "event": "Failed password",
+    "user": "root",
+    "ip": "10.10.20.60",
+    "severity": "HIGH"
+  },
+  {
+    "time": "02:15:09",
+    "source": "sshd",
+    "event": "Failed password",
+    "user": "root",
+    "ip": "10.10.20.60",
+    "severity": "HIGH"
+  },
+  {
+    "time": "12:01:05",
+    "source": "sshd",
+    "event": "Accepted password",
+    "user": "alice",
+    "ip": "10.10.10.15",
+    "severity": "INFO"
+  },
+  {
+    "time": "12:05:01",
+    "source": "sshd",
+    "event": "Accepted password",
+    "user": "admin",
+    "ip": "10.10.20.70",
+    "severity": "INFO"
+  },
+  {
+    "time": "12:05:10",
+    "source": "sshd",
+    "event": "Accepted password",
+    "user": "user1",
+    "ip": "10.10.20.70",
+    "severity": "INFO"
+  },
+  {
+    "time": "12:05:18",
+    "source": "sshd",
+    "event": "Accepted password",
+    "user": "user2",
+    "ip": "10.10.20.70",
+    "severity": "INFO"
+  },
+  {
+    "time": "14:22:18",
+    "source": "firewall",
+    "event": "Connection to port 443",
+    "user": "-",
+    "ip": "10.10.10.88",
+    "dest_port": 443,
+    "severity": "INFO"
+  },
+  {
+    "time": "16:45:30",
+    "source": "sshd",
+    "event": "Failed password",
+    "user": "bob",
+    "ip": "10.10.10.99",
+    "severity": "LOW"
+  },
+  {
+    "time": "16:46:12",
+    "source": "sshd",
+    "event": "Accepted password",
+    "user": "bob",
+    "ip": "10.10.10.99",
+    "severity": "INFO"
+  },
+  {
+    "time": "23:31:02",
+    "source": "sshd",
+    "event": "Failed password",
+    "user": "testuser",
+    "ip": "10.10.20.45",
+    "severity": "HIGH"
+  },
+  {
+    "time": "23:31:04",
+    "source": "sshd",
+    "event": "Failed password",
+    "user": "testuser",
+    "ip": "10.10.20.45",
+    "severity": "HIGH"
+  },
+  {
+    "time": "23:31:08",
+    "source": "sshd",
+    "event": "Failed password",
+    "user": "testuser",
+    "ip": "10.10.20.45",
+    "severity": "HIGH"
+  },
+  {
+    "time": "23:31:11",
+    "source": "sshd",
+    "event": "Failed password",
+    "user": "testuser",
+    "ip": "10.10.20.45",
+    "severity": "HIGH"
+  },
+  {
+    "time": "23:31:14",
+    "source": "sshd",
+    "event": "Failed password",
+    "user": "testuser",
+    "ip": "10.10.20.45",
+    "severity": "HIGH"
+  },
+  {
+    "time": "23:32:01",
+    "source": "firewall",
+    "event": "Connection to port 21",
+    "user": "-",
+    "ip": "10.10.20.50",
+    "dest_port": 21,
+    "severity": "LOW"
+  },
+  {
+    "time": "23:32:05",
+    "source": "firewall",
+    "event": "Connection to port 22",
+    "user": "-",
+    "ip": "10.10.20.50",
+    "dest_port": 22,
+    "severity": "LOW"
+  },
+  {
+    "time": "23:32:10",
+    "source": "firewall",
+    "event": "Connection to port 80",
+    "user": "-",
+    "ip": "10.10.20.50",
+    "dest_port": 80,
+    "severity": "LOW"
+  },
+  {
+    "time": "23:32:15",
+    "source": "firewall",
+    "event": "Connection to port 443",
+    "user": "-",
+    "ip": "10.10.20.50",
+    "dest_port": 443,
+    "severity": "LOW"
+  },
+  {
+    "time": "23:32:20",
+    "source": "firewall",
+    "event": "Connection to port 8080",
+    "user": "-",
+    "ip": "10.10.20.50",
+    "dest_port": 8080,
+    "severity": "LOW"
+  }
+]

@@ -1,0 +1,408 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SIREN SOC Demo</title><link rel="stylesheet" href="css/style.css">
+<style>
+  /* Custom dashboard styling to enhance the original theme */
+  .hero-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .hero-controls select {
+    background: #111a2e;
+    color: #e8eef8;
+    border: 1px solid #24304a;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    outline: none;
+    cursor: pointer;
+  }
+  .hero-controls select:hover {
+    border-color: #42c5f5;
+  }
+  .btn-action {
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 4px;
+    margin-right: 5px;
+    margin-top: 8px;
+    cursor: pointer;
+    border: 0;
+  }
+  .btn-investigate {
+    background: #42c5f5;
+    color: #0a1020;
+  }
+  .btn-contain {
+    background: #ff5e5e;
+    color: white;
+  }
+  .btn-contain:disabled {
+    background: #24304a;
+    color: #8d9ab1;
+    cursor: not-allowed;
+  }
+  .badge-severity {
+    font-size: 10px;
+    font-weight: bold;
+    padding: 3px 6px;
+    border-radius: 4px;
+    margin-left: 5px;
+  }
+  .badge-CRITICAL { background: #5a1c1c; color: #ff9d9d; }
+  .badge-HIGH { background: #512c2c; color: #ffb5b5; }
+  .badge-MEDIUM { background: #4a3b1a; color: #ffe69d; }
+  .badge-LOW { background: #1c355a; color: #9dbaff; }
+  .badge-status {
+    font-size: 10px;
+    font-weight: bold;
+    padding: 3px 6px;
+    border-radius: 4px;
+    float: right;
+  }
+  .status-active { background: #5a1c1c; color: #ff9d9d; border: 1px solid #ff5e5e; }
+  .status-contained { background: #1a4a2a; color: #9dffe6; border: 1px solid #75e19b; }
+  
+  .risk-meter {
+    height: 6px;
+    background: #1c253c;
+    border-radius: 3px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .risk-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+  
+  .investigation-timeline {
+    border-left: 2px solid #24304a;
+    margin-left: 10px;
+    padding-left: 15px;
+    margin-top: 15px;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 12px;
+    font-size: 12px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -21px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #42c5f5;
+  }
+  .timeline-item.failed::before {
+    background: #ff5e5e;
+  }
+  .timeline-item.success::before {
+    background: #75e19b;
+  }
+  .timeline-time {
+    color: #8d9ab1;
+    font-weight: bold;
+    margin-right: 5px;
+  }
+  
+  .terminal-box {
+    background: #050811;
+    border: 1px solid #24304a;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    color: #4af626;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 10px;
+    max-height: 280px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+  }
+  .nist-steps {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0 0;
+  }
+  .nist-steps li {
+    font-size: 12px;
+    margin-bottom: 8px;
+    color: #8d9ab1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nist-steps li.done {
+    color: #75e19b;
+    font-weight: bold;
+  }
+  .btn-download {
+    background: #75e19b;
+    color: #0a1020;
+    font-weight: 800;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 15px;
+    font-size: 12px;
+    display: inline-block;
+    text-decoration: none;
+  }
+  .btn-download:hover {
+    background: #9dffe6;
+  }
+</style>
+</head><body>
+<header><div><b>SIREN <span>SOC</span></b><small>Security Incident Response & Event Network — Simulation</small></div><label>● DEMO MODE</label></header>
+<main>
+<section class="hero">
+  <div>
+    <h1>Security Operations Center</h1>
+    <p>Detect → Investigate → Respond → Report</p>
+  </div>
+  <div class="hero-controls">
+    <select id="scenarioSelect">
+      <option value="ssh_std">Scenario 1: SSH Brute Force (Standard)</option>
+      <option value="ssh_esc">Scenario 2: SSH Brute Force (Escalation / Success)</option>
+      <option value="ssh_off">Scenario 3: SSH Brute Force (Off-Hours & Root)</option>
+      <option value="port_scan">Scenario 4: Port Scan (Firewall Activity)</option>
+      <option value="impossible_burst">Scenario 5: Impossible Login Burst</option>
+    </select>
+    <button id="simulate">Trigger Simulation</button>
+  </div>
+</section>
+
+<section class="cards">
+  <div><small>Critical Alerts</small><strong id="critical">0</strong></div>
+  <div><small>High Alerts</small><strong id="high">0</strong></div>
+  <div><small>Medium Alerts</small><strong id="medium">0</strong></div>
+  <div><small>Events</small><strong id="events">0</strong></div>
+  <div><small>Mean Time to Detect (MTTD)</small><strong id="mttd">0s</strong></div>
+  <div><small>Mean Time to Respond (MTTR)</small><strong id="mttr">0s</strong></div>
+</section>
+
+<section class="cols">
+  <article>
+    <h2>Active Incidents</h2>
+    <div id="incidents">
+      <p style="color:#8d9ab1;">No incidents detected. Loading events...</p>
+    </div>
+  </article>
+  
+  <div>
+    <article id="investigationConsole">
+      <h2>Investigation Console</h2>
+      <div id="investigationContent">
+        <p style="color:#8d9ab1;">Select an active incident from the list to start a deep-dive investigation.</p>
+      </div>
+    </article>
+
+    <article>
+      <h2>SIEM Detection Rules</h2>
+      <div class="rule">
+        <b>SSH Brute Force (T1110)</b>
+        <code>failed_attempts >= 5 within 2m</code>
+        <i>HIGH / CRITICAL</i>
+      </div>
+      <div class="rule">
+        <b>Port Scan (T1046)</b>
+        <code>unique_ports >= 5 within 1m</code>
+        <i>MEDIUM / HIGH</i>
+      </div>
+      <div class="rule">
+        <b>Impossible Login Burst (T1078)</b>
+        <code>successful_logins >= 3 within 1m</code>
+        <i>CRITICAL</i>
+      </div>
+    </article>
+  </div>
+</section>
+
+<article>
+  <h2>Incident Containment & Response Log</h2>
+  <div id="response">
+    No active containment log. Double-click an incident, select <b>Investigate</b>, and click <b>Contain IP</b> to execute a mitigation script.
+  </div>
+</article>
+
+<article>
+  <h2>Recent Security Events (Logs)</h2>
+  <div class="table" style="max-height: 400px; overflow-y: auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Source</th>
+          <th>Event Description</th>
+          <th>Target User</th>
+          <th>Source IP</th>
+          <th>Dest Port</th>
+          <th>Severity</th>
+        </tr>
+      </thead>
+      <tbody id="eventsTable"></tbody>
+    </table>
+  </div>
+</article>
+
+<article style="background: #111a2e; border: 1px solid #24304a; border-radius: 12px; padding: 18px; margin-bottom: 18px;">
+  <h2 style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin: 0;" onclick="toggleDocs()">
+    <span>📘 SOC Reference & SPL Queries (Click to Expand/Collapse)</span>
+    <span id="docsToggleArrow" style="font-size: 18px;">▼</span>
+  </h2>
+  <div id="docsPanel" style="display: none; margin-top: 18px; border-top: 1px solid #24304a; padding-top: 18px;">
+    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+      <button id="tabBtn-ssh" class="btn-action" style="background: #42c5f5; color: #0a1020; margin: 0; padding: 10px 15px;" onclick="switchDocTab('ssh')">SSH Brute Force SPL</button>
+      <button id="tabBtn-port" class="btn-action" style="background: #1c253c; color: #8d9ab1; margin: 0; padding: 10px 15px;" onclick="switchDocTab('port')">Port Scan SPL</button>
+      <button id="tabBtn-bash" class="btn-action" style="background: #1c253c; color: #8d9ab1; margin: 0; padding: 10px 15px;" onclick="switchDocTab('bash')">Bash Containment Script</button>
+    </div>
+    
+    <div id="docTab-ssh" class="doc-tab-content" style="display: block;">
+      <p style="font-size: 13px; color: #8d9ab1; margin-bottom: 10px;">Splunk query used to aggregate logs, calculate risk based on target user sensitivity (Impact), and classify alerts (T1110):</p>
+      <pre style="background: #050811; padding: 15px; border-radius: 6px; overflow-x: auto; font-family: monospace; font-size: 12px; color: #6dd3ff; border: 1px solid #24304a; margin: 0;">index=linux_logs sourcetype=linux_secure "Failed password"
+| rex field=_raw "Failed password for (invalid user )?(?&lt;user&gt;\S+) from (?&lt;src_ip&gt;\S+)"
+| bucket _time span=2m
+| stats count as failed_attempts, min(_time) as first_attempt, max(_time) as last_attempt by src_ip, user, _time
+| where failed_attempts &gt;= 5
+| eval likelihood=case(
+failed_attempts&lt;=2, 1, failed_attempts&lt;=4, 2,
+failed_attempts&lt;=9, 3, failed_attempts&lt;=20, 4,
+failed_attempts&gt;20, 5)
+| eval impact=if(user="root" OR user="admin", 5, 3)
+| eval risk_score=likelihood*impact
+| eval severity=case(
+risk_score&lt;=6, "Low", risk_score&lt;=12, "Medium",
+risk_score&lt;=19, "High", risk_score&gt;=20, "Critical")
+| eval mitre_technique="T1110 - Brute Force"
+| table first_attempt, last_attempt, src_ip, user, failed_attempts, likelihood, impact, risk_score, severity, mitre_technique
+| sort -risk_score</pre>
+    </div>
+    
+    <div id="docTab-port" class="doc-tab-content" style="display: none;">
+      <p style="font-size: 13px; color: #8d9ab1; margin-bottom: 10px;">Splunk query used to check for reconnaissance (Port Scanning T1046) by finding hosts contacting 5+ distinct destination ports within a 1-minute window:</p>
+      <pre style="background: #050811; padding: 15px; border-radius: 6px; overflow-x: auto; font-family: monospace; font-size: 12px; color: #6dd3ff; border: 1px solid #24304a; margin: 0;">index=linux_logs sourcetype=linux_secure OR sourcetype=firewall_logs
+| bucket _time span=1m
+| stats dc(dest_port) as unique_ports, values(dest_port) as ports_hit by src_ip, _time
+| where unique_ports &gt;= 5
+| eval likelihood=case(
+unique_ports&lt;=6, 3, unique_ports&lt;=10, 4, unique_ports&gt;10, 5)
+| eval impact=3
+| eval risk_score=likelihood*impact
+| eval severity=case(
+risk_score&lt;=6, "Low", risk_score&lt;=12, "Medium",
+risk_score&lt;=19, "High", risk_score&gt;=20, "Critical")
+| eval mitre_technique="T1046 - Network Service Discovery"
+| table _time, src_ip, unique_ports, ports_hit, risk_score, severity, mitre_technique
+| sort -risk_score</pre>
+    </div>
+    
+    <div id="docTab-bash" class="doc-tab-content" style="display: none;">
+      <p style="font-size: 13px; color: #8d9ab1; margin-bottom: 10px;">Bash Incident Response automation script (`incident_response.sh`) executed on target machines to contain IPs and save report audits:</p>
+      <pre style="background: #050811; padding: 15px; border-radius: 6px; overflow-x: auto; font-family: monospace; font-size: 11px; color: #75e19b; border: 1px solid #24304a; margin: 0; max-height: 350px; overflow-y: auto;">#!/bin/bash
+# incident_response.sh
+# Usage: ./incident_response.sh &lt;attacker_ip&gt; &lt;failed_attempts&gt; &lt;target_user&gt; &lt;attack_hour(0-23)&gt;
+
+ATTACKER_IP=$1
+ATTEMPTS=$2
+TARGET_USER=$3
+ATTACK_HOUR=$4
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+INCIDENT_ID="INC-\$(date +%s)"
+
+if [ -z "\$ATTACKER_IP" ] || [ -z "\$ATTEMPTS" ] || [ -z "\$TARGET_USER" ]; then
+  echo "Usage: \$0 &lt;attacker_ip&gt; &lt;failed_attempts&gt; &lt;target_user&gt; &lt;attack_hour(0-23)&gt;"
+  exit 1
+fi
+
+# --- Likelihood scoring (attempt volume) ---
+if [ "\$ATTEMPTS" -le 2 ]; then LIKELIHOOD=1
+elif [ "\$ATTEMPTS" -le 4 ]; then LIKELIHOOD=2
+elif [ "\$ATTEMPTS" -le 9 ]; then LIKELIHOOD=3
+elif [ "\$ATTEMPTS" -le 20 ]; then LIKELIHOOD=4
+else LIKELIHOOD=5
+fi
+
+# --- Time-of-day anomaly bump (Proactive Detection) ---
+if [ -n "\$ATTACK_HOUR" ] && { [ "\$ATTACK_HOUR" -lt 8 ] || [ "\$ATTACK_HOUR" -ge 20 ]; }; then
+  if [ "\$LIKELIHOOD" -lt 5 ]; then LIKELIHOOD=\$((LIKELIHOOD + 1)); fi
+  TIME_FLAG="Unusual login time (off-hours) - likelihood increased"
+else
+  TIME_FLAG="Normal login time window"
+fi
+
+# --- Impact scoring (account sensitivity) ---
+if [ "\$TARGET_USER" == "root" ] || [ "\$TARGET_USER" == "admin" ]; then
+  IMPACT=5
+else
+  IMPACT=3
+fi
+
+RISK_SCORE=\$((LIKELIHOOD * IMPACT))
+
+if [ "\$RISK_SCORE" -le 6 ]; then SEVERITY="Low"
+elif [ "\$RISK_SCORE" -le 12 ]; then SEVERITY="Medium"
+elif [ "\$RISK_SCORE" -le 19 ]; then SEVERITY="High"
+else SEVERITY="Critical"
+fi
+
+echo "=== SOC ALERT ==="
+echo "Incident ID: \$INCIDENT_ID"
+echo "Source IP: \$ATTACKER_IP"
+echo "Failed Attempts: \$ATTEMPTS"
+echo "Time Flag: \$TIME_FLAG"
+echo "Risk Score: \$RISK_SCORE (\$SEVERITY)"
+echo "MITRE ATT&CK: T1110 - Brute Force"
+echo "=================="
+
+# --- Containment: analyst-confirmed, not autonomous ---
+read -p "Confirm containment: block \$ATTACKER_IP? (y/n): " CONFIRM
+if [ "\$CONFIRM" == "y" ]; then
+  sudo iptables -A INPUT -s "\$ATTACKER_IP" -j DROP
+  ACTION="IP \$ATTACKER_IP blocked via iptables (analyst-confirmed)"
+  echo "\$ACTION"
+else
+  ACTION="No containment action taken (analyst declined)"
+fi
+
+# --- Report generation ---
+REPORT_FILE="incident_report_\${INCIDENT_ID}.txt"
+cat &lt;&lt;EOF &gt; "\$REPORT_FILE"
+INCIDENT REPORT
+================
+Incident ID: \$INCIDENT_ID
+Detection Time: \$TIMESTAMP
+Attack Type: SSH Brute Force
+MITRE ATT&CK Technique: T1110 - Brute Force
+Source IP: \$ATTACKER_IP
+Target Account: \$TARGET_USER
+Failed Attempts: \$ATTEMPTS
+Time Analysis: \$TIME_FLAG
+Risk Score: \$RISK_SCORE
+Severity: \$SEVERITY
+Response Action: \$ACTION
+Response Type: Semi-automated (Splunk detects, analyst confirms containment)
+Framework Followed: NIST IR Lifecycle
+Final Status: \$( [ "\$CONFIRM" == "y" ] && echo "Contained" || echo "Under Review" )
+
+--- Known Limitations (for transparency) ---
+- Detection window is fixed at 2 minutes; attacks spanning window
+  boundaries may undercount.
+- Containment requires analyst confirmation (not fully autonomous).
+EOF
+
+echo "Incident report saved: \$REPORT_FILE"
+</pre>
+    </div>
+  </div>
+</article>
+
+<footer>Educational SOC simulation dashboard. All displayed events are synthetic.</footer>
+</main>
+<script src="js/app.js"></script>
+</body></html>

@@ -1,0 +1,14 @@
+index=linux_logs sourcetype=linux_secure OR sourcetype=firewall_logs
+| bucket _time span=1m
+| stats dc(dest_port) as unique_ports, values(dest_port) as ports_hit by src_ip, _time
+| where unique_ports >= 5
+| eval likelihood=case(
+unique_ports<=6, 3, unique_ports<=10, 4, unique_ports>10, 5)
+| eval impact=3
+| eval risk_score=likelihood*impact
+| eval severity=case(
+risk_score<=6, "Low", risk_score<=12, "Medium",
+risk_score<=19, "High", risk_score>=20, "Critical")
+| eval mitre_technique="T1046 - Network Service Discovery"
+| table _time, src_ip, unique_ports, ports_hit, risk_score, severity, mitre_technique
+| sort -risk_score
