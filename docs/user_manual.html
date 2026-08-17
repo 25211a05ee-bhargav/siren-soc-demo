@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SIREN SOC Dashboard — Technical Analyst Manual</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      line-height: 1.6;
+      margin: 40px;
+      background: #fff;
+    }
+    h1, h2, h3, h4 {
+      color: #0b1a30;
+      font-weight: 700;
+    }
+    h1 {
+      font-size: 32px;
+      border-bottom: 2px solid #0b1a30;
+      padding-bottom: 10px;
+      margin-top: 50px;
+    }
+    h2 {
+      font-size: 22px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 6px;
+      margin-top: 30px;
+    }
+    h3 {
+      font-size: 16px;
+      margin-top: 20px;
+    }
+    p, li {
+      font-size: 14px;
+    }
+    ul, ol {
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    code {
+      font-family: Consolas, 'Courier New', monospace;
+      background: #f4f6f9;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-size: 13px;
+      color: #b31010;
+    }
+    pre {
+      font-family: Consolas, 'Courier New', monospace;
+      background: #f4f6f9;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 6px;
+      font-size: 12px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      color: #222;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+      font-size: 13px;
+    }
+    th {
+      background: #f4f6f9;
+      color: #0b1a30;
+      font-weight: bold;
+    }
+    .cover {
+      text-align: center;
+      padding-top: 150px;
+      page-break-after: always;
+    }
+    .cover h1 {
+      font-size: 42px;
+      border: 0;
+      margin-bottom: 10px;
+    }
+    .cover p {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 40px;
+    }
+    .badge {
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+    .badge-crit { background: #ffe6e6; color: #b30000; border: 1px solid #ffb3b3; }
+    .badge-high { background: #fff2e6; color: #b35900; border: 1px solid #ffcc99; }
+    .badge-med { background: #fffae6; color: #b38600; border: 1px solid #ffe699; }
+    @media print {
+      body {
+        margin: 20px;
+        font-size: 12px;
+      }
+      pre {
+        page-break-inside: avoid;
+      }
+      h1, h2, h3 {
+        page-break-after: avoid;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cover Page -->
+  <div class="cover">
+    <h1>PROJECT SIREN</h1>
+    <p>Intelligent Mini-SOC Dashboard & Threat Detection Lifecycle</p>
+    <div style="margin-top: 80px; font-size: 14px; color: #555;">
+      <strong>SOC Mini Hackathon 2026</strong><br>
+      Technical Analyst Manual & Reference Specifications<br>
+      Submission Version: 2.0
+    </div>
+  </div>
+
+  <!-- Table of Contents -->
+  <h2>Table of Contents</h2>
+  <ol>
+    <li>Project Overview & Statement</li>
+    <li>Security Tool Stack & Roles</li>
+    <li>SIEM Correlation Rules & SPL Specifications</li>
+    <li>Proactive Anomaly Detection Mechanics</li>
+    <li>Incident Response Workflow & Playbook</li>
+    <li>Automation Containment Script Code</li>
+    <li>NIST Incident Report Generation Template</li>
+    <li>Deployment & Hosting Manual</li>
+  </ol>
+
+  <!-- Section 1 -->
+  <h1 class="page-break">1. Project Overview & Statement</h1>
+  <p>
+    Standard SOC educational projects usually stop at threat detection, neglecting the complete incident response lifecycle. 
+    <strong>Project SIREN</strong> builds a fully interactive Mini-SOC environment, simulating raw log management (Module 1), 
+    SIEM detection rules (Module 2), proactive behavioral profiling (Module 3), and incident response containment with compliance reporting (Module 4).
+  </p>
+  <p>
+    The client-side dashboard mimics real Splunk-style monitoring, allowing security analysts to investigate detailed event timelines, 
+    assess threat severities dynamically via risk-scoring algorithms ($Likelihood \times Impact$), run simulated firewall blocks, 
+    and output audit-ready report logs aligning with the <strong>NIST Incident Response Lifecycle (SP 800-61)</strong>.
+  </p>
+
+  <!-- Section 2 -->
+  <h1>2. Security Tool Stack & Roles</h1>
+  <p>During live deployment (Stage 9), SIREN coordinates several tools to create a realistic environment:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Tool</th>
+        <th>System Role</th>
+        <th>Configuration / Scripting</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Kali Linux</strong></td>
+        <td>Attacker node. Simulates password spraying and port discovery scans.</td>
+        <td>Hydra, Medusa, Nmap.</td>
+      </tr>
+      <tr>
+        <td><strong>Ubuntu Server</strong></td>
+        <td>Target node. Runs system applications and generates raw access logs.</td>
+        <td>OpenSSH Daemon, systemd logs (`/var/log/auth.log`).</td>
+      </tr>
+      <tr>
+        <td><strong>Splunk Enterprise</strong></td>
+        <td>SIEM Platform. Ingests raw logs and evaluates correlation rules.</td>
+        <td>Universal Forwarder, Custom SPL search queries.</td>
+      </tr>
+      <tr>
+        <td><strong>Bash Script</strong></td>
+        <td>Containment Automation. Executed by analysts to contain threats.</td>
+        <td>`incident_response.sh` executing iptables filter policies.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 3 -->
+  <h1 class="page-break">3. SIEM Correlation Rules & SPL Specifications</h1>
+  <p>SIREN evaluates logs against three primary detection rules modeled directly on Splunk Search Processing Language (SPL):</p>
+  
+  <h3>Rule 1: SSH Brute Force Detection (MITRE ATT&CK: T1110)</h3>
+  <p>Triggers when an IP generates $\ge 5$ failed password attempts inside a 2-minute time window.</p>
+  <pre>index=linux_logs sourcetype=linux_secure "Failed password"
+| rex field=_raw "Failed password for (invalid user )?(?&lt;user&gt;\S+) from (?&lt;src_ip&gt;\S+)"
+| bucket _time span=2m
+| stats count as failed_attempts, min(_time) as first_attempt, max(_time) as last_attempt by src_ip, user, _time
+| where failed_attempts >= 5
+| eval likelihood=case(
+    failed_attempts<=2, 1, failed_attempts<=4, 2,
+    failed_attempts<=9, 3, failed_attempts<=20, 4,
+    failed_attempts>20, 5)
+| eval impact=if(user="root" OR user="admin", 5, 3)
+| eval risk_score=likelihood*impact
+| eval severity=case(
+    risk_score<=6, "Low", risk_score<=12, "Medium",
+    risk_score<=19, "High", risk_score>=20, "Critical")
+| eval mitre_technique="T1110 - Brute Force"
+| table first_attempt, last_attempt, src_ip, user, failed_attempts, likelihood, impact, risk_score, severity, mitre_technique
+| sort -risk_score</pre>
+
+  <h3>Rule 2: Firewall Port Scan Detection (MITRE ATT&CK: T1046)</h3>
+  <p>Triggers when a source IP contacts $\ge 5$ unique ports within a 1-minute window.</p>
+  <pre>index=linux_logs sourcetype=linux_secure OR sourcetype=firewall_logs
+| bucket _time span=1m
+| stats dc(dest_port) as unique_ports, values(dest_port) as ports_hit by src_ip, _time
+| where unique_ports >= 5
+| eval likelihood=case(
+    unique_ports<=6, 3, unique_ports<=10, 4, unique_ports>10, 5)
+| eval impact=3
+| eval risk_score=likelihood*impact
+| eval severity=case(
+    risk_score<=6, "Low", risk_score<=12, "Medium",
+    risk_score<=19, "High", risk_score>=20, "Critical")
+| eval mitre_technique="T1046 - Network Service Discovery"
+| table _time, src_ip, unique_ports, ports_hit, risk_score, severity, mitre_technique
+| sort -risk_score</pre>
+
+  <!-- Section 4 -->
+  <h1 class="page-break">4. Proactive Anomaly Detection Mechanics</h1>
+  <p>Rather than relying solely on event thresholds, SIREN uses behavioral analysis elements to adjust severity:</p>
+  <ul>
+    <li>
+      <strong>Time-of-Day Anomaly (Off-Hours Bump)</strong>: Attack attempts launched during off-hours 
+      (defined as before 8:00 AM or after 8:00 PM) represent a higher anomaly score. The system automatically increases the 
+      <strong>Likelihood</strong> rating by <strong>+1</strong> (up to a max of 5), increasing the final Risk Score.
+    </li>
+    <li>
+      <strong>Target Account Impact Escalation</strong>: SSH authentication attempts targeting critical infrastructure credentials 
+      (like the default accounts <code>root</code> or <code>admin</code>) represent higher target value. The impact rating is set to 
+      <strong>5</strong> (instead of 3 for normal users).
+    </li>
+    <li>
+      <strong>Compromise Detection (Critical Escalation)</strong>: A successful login event (<code>Accepted password</code>) originating 
+      from the same IP address and username within the brute force window escalates the alert severity instantly to <span class="badge badge-crit">CRITICAL</span>, 
+      overriding normal risk scores to flag active host compromise.
+    </li>
+  </ul>
+
+  <!-- Section 5 -->
+  <h1>5. Incident Response Workflow & Playbook</h1>
+  <p>Analysts follow the standard NIST response procedures supported interactively by the dashboard:</p>
+  <ol>
+    <li>
+      <strong>Detection & Analysis</strong>: Alerts trigger dynamically based on raw logs. The analyst evaluates the 
+      threat severity cards and selects a threat to investigate.
+    </li>
+    <li>
+      <strong>Timeline Investigation</strong>: The console compiles a clean timeline showing only the related attacker events. 
+      The system tracks <strong>Time to Detect (MTTD)</strong> based on log boundaries.
+    </li>
+    <li>
+      <strong>Analyst-Confirmed Containment</strong>: The analyst runs the containment script. A confirmation prompt prevents 
+      unauthorized or autonomous host blocks.
+    </li>
+    <li>
+      <strong>Eradication & Audit Reporting</strong>: The dashboard executes the IP drop command in a mock console window, 
+      updates the status to <code>Contained</code>, tracks <strong>Time to Respond (MTTR)</strong>, and generates an official incident report file.
+    </li>
+  </ol>
+
+  <!-- Section 6 -->
+  <h1 class="page-break">6. Automation Containment Script Code</h1>
+  <p>The following script, <code>incident_response.sh</code>, is written in Bash and deployed to target hosts to handle containment:</p>
+  <pre>#!/bin/bash
+# incident_response.sh
+# Usage: ./incident_response.sh &lt;attacker_ip&gt; &lt;failed_attempts&gt; &lt;target_user&gt; &lt;attack_hour(0-23)&gt;
+
+ATTACKER_IP=$1
+ATTEMPTS=$2
+TARGET_USER=$3
+ATTACK_HOUR=$4
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+INCIDENT_ID="INC-$(date +%s)"
+
+if [ -z "$ATTACKER_IP" ] || [ -z "$ATTEMPTS" ] || [ -z "$TARGET_USER" ]; then
+  echo "Usage: $0 &lt;attacker_ip&gt; &lt;failed_attempts&gt; &lt;target_user&gt; &lt;attack_hour(0-23)&gt;"
+  exit 1
+fi
+
+# --- Likelihood scoring (attempt volume) ---
+if [ "$ATTEMPTS" -le 2 ]; then LIKELIHOOD=1
+elif [ "$ATTEMPTS" -le 4 ]; then LIKELIHOOD=2
+elif [ "$ATTEMPTS" -le 9 ]; then LIKELIHOOD=3
+elif [ "$ATTEMPTS" -le 20 ]; then LIKELIHOOD=4
+else LIKELIHOOD=5
+fi
+
+# --- Time-of-day anomaly bump (Proactive Detection) ---
+if [ -n "$ATTACK_HOUR" ] && { [ "$ATTACK_HOUR" -lt 8 ] || [ "$ATTACK_HOUR" -ge 20 ]; }; then
+  if [ "$LIKELIHOOD" -lt 5 ]; then LIKELIHOOD=$((LIKELIHOOD + 1)); fi
+  TIME_FLAG="Unusual login time (off-hours) - likelihood increased"
+else
+  TIME_FLAG="Normal login time window"
+fi
+
+# --- Impact scoring (account sensitivity) ---
+if [ "$TARGET_USER" == "root" ] || [ "$TARGET_USER" == "admin" ]; then
+  IMPACT=5
+else
+  IMPACT=3
+fi
+
+RISK_SCORE=$((LIKELIHOOD * IMPACT))
+
+if [ "$RISK_SCORE" -le 6 ]; then SEVERITY="Low"
+elif [ "$RISK_SCORE" -le 12 ]; then SEVERITY="Medium"
+elif [ "$RISK_SCORE" -le 19 ]; then SEVERITY="High"
+else SEVERITY="Critical"
+fi
+
+echo "=== SOC ALERT ==="
+echo "Incident ID: $INCIDENT_ID"
+echo "Source IP: $ATTACKER_IP"
+echo "Failed Attempts: $ATTEMPTS"
+echo "Time Flag: $TIME_FLAG"
+echo "Risk Score: $RISK_SCORE ($SEVERITY)"
+echo "MITRE ATT&CK: T1110 - Brute Force"
+echo "=================="
+
+# --- Containment: analyst-confirmed, not autonomous ---
+read -p "Confirm containment: block $ATTACKER_IP? (y/n): " CONFIRM
+if [ "$CONFIRM" == "y" ]; then
+  sudo iptables -A INPUT -s "$ATTACKER_IP" -j DROP
+  ACTION="IP $ATTACKER_IP blocked via iptables (analyst-confirmed)"
+  echo "$ACTION"
+else
+  ACTION="No containment action taken (analyst declined)"
+fi
+
+# --- Report generation ---
+REPORT_FILE="incident_report_${INCIDENT_ID}.txt"
+cat &lt;&lt;EOF &gt; "$REPORT_FILE"
+INCIDENT REPORT
+================
+Incident ID: $INCIDENT_ID
+Detection Time: $TIMESTAMP
+Attack Type: SSH Brute Force
+MITRE ATT&CK Technique: T1110 - Brute Force
+Source IP: $ATTACKER_IP
+Target Account: $TARGET_USER
+Failed Attempts: $ATTEMPTS
+Time Analysis: $TIME_FLAG
+Risk Score: $RISK_SCORE
+Severity: $SEVERITY
+Response Action: $ACTION
+Response Type: Semi-automated (Splunk detects, analyst confirms containment)
+Framework Followed: NIST IR Lifecycle
+Final Status: $( [ "$CONFIRM" == "y" ] && echo "Contained" || echo "Under Review" )
+
+--- Known Limitations (for transparency) ---
+- Detection window is fixed at 2 minutes; attacks spanning window
+  boundaries may undercount.
+- Containment requires analyst confirmation (not fully autonomous).
+EOF
+
+echo "Incident report saved: $REPORT_FILE"</pre>
+
+  <!-- Section 7 -->
+  <h1 class="page-break">7. NIST Incident Report Generation Template</h1>
+  <p>When an incident report is generated and downloaded via the dashboard, it outputs the following structure:</p>
+  <pre>INCIDENT REPORT
+================
+Incident ID: INC-BF-10102060-root
+Detection Time: 2026-08-18 02:15:09
+Attack Type: SSH Brute Force
+MITRE ATT&CK Technique: T1110 - Brute Force
+Source IP: 10.10.20.60
+Target Account: root
+Failed Attempts: 5
+Time Analysis: Unusual login time (off-hours) - likelihood increased
+Risk Score: 20
+Severity: Critical
+Response Action: IP 10.10.20.60 blocked via iptables (analyst-confirmed)
+Response Type: Semi-automated (Splunk detects, analyst confirms containment)
+Framework Followed: NIST IR Lifecycle
+Final Status: Contained
+
+--- Known Limitations (for transparency) ---
+- Detection window is fixed at 2 minutes; attacks spanning window
+  boundaries may undercount.
+- Containment requires analyst confirmation (not fully autonomous).</pre>
+
+  <!-- Section 8 -->
+  <h1>8. Deployment & Hosting Manual</h1>
+  
+  <h3>Deploying to Vercel (Using GitHub Sync)</h3>
+  <p>Vercel integrates directly with GitHub, enabling automatic deployments upon every code push:</p>
+  <ol>
+    <li>Navigate to **[https://vercel.com/new](https://vercel.com/new)**.</li>
+    <li>Log in using your GitHub account.</li>
+    <li>In the list of repositories, locate <code>siren-soc-demo</code> and click <strong>Import</strong>.</li>
+    <li>Leave the default settings unchanged and click <strong>Deploy</strong>.</li>
+    <li>Vercel will build the project and provide a public HTTPS URL (e.g., <code>siren-soc-demo.vercel.app</code>).</li>
+  </ol>
+
+  <h3>Deploying to GitHub Pages</h3>
+  <p>If you prefer hosting directly on GitHub, configure GitHub Pages in settings:</p>
+  <ol>
+    <li>Go to your repository settings page: <code>github.com/25211a05ee-bhargav/siren-soc-demo/settings/pages</code></li>
+    <li>Under <strong>Build and deployment > Source</strong>, choose <code>Deploy from a branch</code>.</li>
+    <li>Select the branch <strong><code>main</code></strong> and folder <code>/ (root)</code>, then click **Save**.</li>
+    <li>Wait 60 seconds, and the site will load at: <code>https://25211a05ee-bhargav.github.io/siren-soc-demo/</code></li>
+  </ol>
+
+</body>
+</html>
